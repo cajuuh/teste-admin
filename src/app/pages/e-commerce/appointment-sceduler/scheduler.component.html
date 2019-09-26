@@ -1,0 +1,48 @@
+<!-- <div class="container">
+  <h1>{{months[thisDate.getMonth()]}}</h1>
+  <div class="row projetos">
+    <div class="col-md-2">
+    </div>
+    <div *ngFor="let day of fakeArray(getDaysInMonth()); let i = index">
+      <div class="col-lg-1 offset-lg-1 celula">
+        {{i + 1}}
+      </div>
+    </div>
+  </div>
+</div> -->
+<!-- <table class="table" style="color: white;">
+  <thead>
+    <tr>
+      <th>Projetos</th>
+      <th *ngFor="let day of fakeArray(getDaysInMonth()); let i = index">
+        {{i + 1}}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let projeto of projetos">
+        <td>{{projeto}}</td>
+    </tr>
+  </tbody>
+</table> -->
+<nb-card>
+  <nb-card-body>
+    <table class="table white-table">
+      <thead>
+        <tr>
+          <th class="celula">Projetos</th>
+          <th class="celula" *ngFor="let day of fakeArray(getDaysInMonth()); let i = index">
+            {{i + 1}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let projeto of projetos">
+          <td class="celula">{{projeto}}</td>
+          <td class="celula" *ngFor="let day of fakeArray(getDaysInMonth()); let i = index">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </nb-card-body>
+</nb-card>

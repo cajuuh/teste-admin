@@ -1,0 +1,19 @@
+.celula {
+  border: solid 1px white;
+}
+
+.projetos {
+  display: flex !important;
+  flex-wrap: inherit !important;
+  overflow-x: auto !important;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.white-table {
+  color: white;
+}
+

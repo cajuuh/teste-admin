@@ -57,6 +57,7 @@ import { EarningCardFrontComponent } from './earning-card/front-side/earning-car
 import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earning-live-update-chart.component';
 import { DayPilotModule } from 'daypilot-pro-angular';
 import { DataService } from './data.service';
+import { SchedulerComponent } from './appointment-sceduler/scheduler.component';
 
 @NgModule({
   imports: [
@@ -73,7 +74,7 @@ import { DataService } from './data.service';
     NgxEchartsModule,
     NgxChartsModule,
     LeafletModule,
-    DayPilotModule
+    DayPilotModule,
   ],
   declarations: [
     ECommerceComponent,
@@ -108,6 +109,7 @@ import { DataService } from './data.service';
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
+    SchedulerComponent
   ],
   providers: [
     CountryOrdersMapService,
