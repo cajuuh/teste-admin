@@ -1,175 +1,206 @@
-import { Component } from "@angular/core";
 import {
-  NbSortDirection,
-  NbSortRequest,
-  NbTreeGridDataSource,
-  NbTreeGridDataSourceBuilder,
-  NbDialogRef
-} from "@nebular/theme";
-import { DialogSliderSchedulerComponent } from '../dialog-slider-scheduler/dialog-slider-scheduler.component';
+  Component,
+  ChangeDetectionStrategy,
+  ViewChild,
+  TemplateRef,
+  Inject,
+  ViewEncapsulation,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  addDays,
+  endOfMonth,
+  isSameDay,
+  isSameMonth,
+  addHours
+} from 'date-fns';
+import { Subject } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  CalendarEvent,
+  CalendarEventAction,
+  CalendarEventTimesChangedEvent,
+  CalendarView
+} from 'angular-calendar';
+import { DOCUMENT } from '@angular/common';
+
+const colors: any = {
+  red: {
+    primary: '#ad2121',
+    secondary: '#FAE3E3'
+  },
+  blue: {
+    primary: '#1e90ff',
+    secondary: '#D1E8FF'
+  },
+  yellow: {
+    primary: '#e3bc08',
+    secondary: '#FDF1BA'
+  }
+};
 
 @Component({
   selector: "ngx-ecommerce-scheduler",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./scheduler.component.html",
-  styleUrls: ["./scheduler.component.scss"]
+  styleUrls: ["./scheduler.component.scss"],
+  encapsulation: ViewEncapsulation.None
 })
-export class SchedulerComponent {
+export class SchedulerComponent implements OnInit, OnDestroy {
+  @ViewChild('modalContent', { static: true }) modalContent: TemplateRef<any>;
 
-  constructor(protected ref: NbDialogRef<DialogSliderSchedulerComponent>) {}
+  view: CalendarView = CalendarView.Month;
 
-  // mocking data
-  thisDate = new Date();
-  months = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-  ];
+  CalendarView = CalendarView;
 
-  weekDays = [
-    "Domingo",
-    "Segunda-Feira",
-    "Terça-Feira",
-    "Quarta-Feira",
-    "Quinta-Feira",
-    "Sexta-Feira",
-    "Sábado"
-  ];
+  viewDate: Date = new Date();
 
-  projetos = [
+  modalData: {
+    action: string;
+    event: CalendarEvent;
+  };
+
+  actions: CalendarEventAction[] = [
     {
-      nome: "Projeto 1",
-      value: [
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8,
-        8
-      ]
+      label: '<i class="fa fa-fw fa-pencil"></i>',
+      onClick: ({ event }: { event: CalendarEvent }): void => {
+        this.handleEvent('Edited', event);
+      }
     },
     {
-      nome: "Projeto 2",
-      value: [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ]
+      label: '<i class="fa fa-fw fa-times"></i>',
+      onClick: ({ event }: { event: CalendarEvent }): void => {
+        this.events = this.events.filter(iEvent => iEvent !== event);
+        this.handleEvent('Deleted', event);
+      }
     }
   ];
 
-  fakeArray(length: number): Array<any> {
-    if (length >= 0) {
-      return new Array(length - 1);
+  refresh: Subject<any> = new Subject();
+
+  events: CalendarEvent[] = [
+    {
+      start: subDays(startOfDay(new Date()), 1),
+      end: addDays(new Date(), 1),
+      title: 'A 3 day event',
+      color: colors.red,
+      actions: this.actions,
+      allDay: true,
+      resizable: {
+        beforeStart: true,
+        afterEnd: true
+      },
+      draggable: true
+    },
+    {
+      start: startOfDay(new Date()),
+      title: 'An event with no end date',
+      color: colors.yellow,
+      actions: this.actions
+    },
+    {
+      start: subDays(endOfMonth(new Date()), 3),
+      end: addDays(endOfMonth(new Date()), 3),
+      title: 'A long event that spans 2 months',
+      color: colors.blue,
+      allDay: true
+    },
+    {
+      start: addHours(startOfDay(new Date()), 2),
+      end: new Date(),
+      title: 'A draggable and resizable event',
+      color: colors.yellow,
+      actions: this.actions,
+      resizable: {
+        beforeStart: true,
+        afterEnd: true
+      },
+      draggable: true
+    }
+  ];
+
+  activeDayIsOpen: boolean = true;
+
+  constructor(private modal: NgbModal, @Inject(DOCUMENT) private document) {}
+
+  ngOnInit(): void {
+    this.document.body.classList.add(this.darkThemeClass);
+  }
+
+  ngOnDestroy(): void {
+    this.document.body.classList.remove(this.darkThemeClass);
+  }
+
+  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+    if (isSameMonth(date, this.viewDate)) {
+      if (
+        (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
+        events.length === 0
+      ) {
+        this.activeDayIsOpen = false;
+      } else {
+        this.activeDayIsOpen = true;
+      }
+      this.viewDate = date;
     }
   }
 
-  getDaysInMonth() {
-    var daysInMonth = 0;
-    var year = new Date().getFullYear();
-    var month = new Date().getMonth();
+  eventTimesChanged({
+    event,
+    newStart,
+    newEnd
+  }: CalendarEventTimesChangedEvent): void {
+    this.events = this.events.map(iEvent => {
+      if (iEvent === event) {
+        return {
+          ...event,
+          start: newStart,
+          end: newEnd
+        };
+      }
+      return iEvent;
+    });
+    this.handleEvent('Dropped or resized', event);
+  }
 
-    switch (month) {
-      case 1:
-      case 3:
-      case 5:
-      case 7:
-      case 8:
-      case 10:
-      case 12:
-        daysInMonth = 31;
-        break;
-      case 4:
-      case 6:
-      case 9:
-      case 11:
-        daysInMonth = 30;
-        break;
-      case 2:
-        if ((year % 4 == 0 && !(year % 100 == 0)) || year % 400 == 0) {
-          daysInMonth = 29;
-        } else {
-          daysInMonth = 28;
+  handleEvent(action: string, event: CalendarEvent): void {
+    this.modalData = { event, action };
+    this.modal.open(this.modalContent, { size: 'lg' });
+  }
+
+  addEvent(): void {
+    this.events = [
+      ...this.events,
+      {
+        title: 'New event',
+        start: startOfDay(new Date()),
+        end: endOfDay(new Date()),
+        color: colors.red,
+        draggable: true,
+        resizable: {
+          beforeStart: true,
+          afterEnd: true
         }
-        break;
-      default:
-        console.log("Invalid month");
-        break;
-    }
-
-    return daysInMonth;
+      }
+    ];
   }
 
-  openSlider(){
-
+  deleteEvent(eventToDelete: CalendarEvent) {
+    this.events = this.events.filter(event => event !== eventToDelete);
   }
 
-
-  cancel() {
-    this.ref.close();
+  setView(view: CalendarView) {
+    this.view = view;
   }
 
-  submit(name) {
-    this.ref.close(name);
+  closeOpenMonthViewDay() {
+    this.activeDayIsOpen = false;
   }
+
+  private readonly darkThemeClass = 'dark-theme';
 
 }

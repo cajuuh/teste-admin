@@ -14,17 +14,17 @@ export class ECommerceUserActivityComponent implements OnDestroy {
   private alive = true;
 
   userActivity: UserActive[] = [];
-  type = 'month';
+  type = 'week';
   types = ['week', 'month', 'year'];
   currentTheme: string;
 
   constructor(private themeService: NbThemeService,
-              private userActivityService: UserActivityData) {
+    private userActivityService: UserActivityData) {
     this.themeService.getJsTheme()
       .pipe(takeWhile(() => this.alive))
       .subscribe(theme => {
         this.currentTheme = theme.name;
-    });
+      });
 
     this.getUserActivity(this.type);
   }
@@ -34,6 +34,7 @@ export class ECommerceUserActivityComponent implements OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe(userActivityData => {
         this.userActivity = userActivityData;
+        console.log(this.userActivity);
       });
   }
 

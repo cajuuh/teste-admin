@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { NbDialogRef } from '@nebular/theme';
 
 @Component({
   selector: "ngx-ecommerce-dialog-slider",
@@ -6,6 +7,17 @@ import { Component } from "@angular/core";
   styleUrls: ["./dialog-slider-scheduler.component.scss"]
 })
 export class DialogSliderSchedulerComponent {
+
+  constructor(protected ref: NbDialogRef<DialogSliderSchedulerComponent>) {}
+
+  cancel() {
+    this.ref.close();
+  }
+
+  submit(value) {
+    this.ref.close(value);
+  }
+
   value = 25;
 
   get status() {

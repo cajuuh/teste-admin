@@ -1,0 +1,22 @@
+@import '../../../@theme/styles/themes.scss';
+
+@include nb-install-component() {
+  .container {
+    display: flex;
+    align-items: center;
+    width: 500px !important;
+  }
+
+  nb-progress-bar {
+    flex: 1;
+    margin: 0 1rem;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  .cancel {
+    margin-right: 1rem;
+  }
+}

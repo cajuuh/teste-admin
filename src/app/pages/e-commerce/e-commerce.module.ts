@@ -8,7 +8,9 @@ import {
   NbIconModule,
   NbSelectModule,
   NbListModule,
+  NbDialogModule
 } from '@nebular/theme';
+import {NgbModule, NgbModalModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
@@ -58,6 +60,11 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
 import { DayPilotModule } from 'daypilot-pro-angular';
 import { DataService } from './data.service';
 import { SchedulerComponent } from './appointment-sceduler/scheduler.component';
+import { DialogSliderSchedulerComponent } from './dialog-slider-scheduler/dialog-slider-scheduler.component';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { FlatpickrModule } from 'angularx-flatpickr';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -75,6 +82,15 @@ import { SchedulerComponent } from './appointment-sceduler/scheduler.component';
     NgxChartsModule,
     LeafletModule,
     DayPilotModule,
+    NbDialogModule.forChild(),
+    NgbModule,
+    FormsModule,
+    NgbModalModule,
+    FlatpickrModule.forRoot(),
+    CalendarModule.forRoot({
+      provide: DateAdapter,
+      useFactory: adapterFactory
+    })
   ],
   declarations: [
     ECommerceComponent,
@@ -109,11 +125,15 @@ import { SchedulerComponent } from './appointment-sceduler/scheduler.component';
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
-    SchedulerComponent
+    SchedulerComponent,
+    DialogSliderSchedulerComponent
   ],
   providers: [
     CountryOrdersMapService,
-    DataService
+    DataService,
   ],
+  entryComponents: [
+    DialogSliderSchedulerComponent
+  ]
 })
 export class ECommerceModule { }
